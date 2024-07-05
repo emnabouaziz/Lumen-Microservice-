@@ -9,7 +9,9 @@
         "darkaonline/swagger-lume": "^11.0",
         "elasticsearch/elasticsearch": "^8.14",
         "illuminate/database": "^9.52",
-        "laravel/lumen-framework": "^9.0"
+        "illuminate/redis": "*",
+        "laravel/lumen-framework": "^9.0",
+        "predis/predis": "2.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

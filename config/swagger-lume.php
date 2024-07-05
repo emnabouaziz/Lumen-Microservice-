@@ -108,6 +108,10 @@ return [
         |--------------------------------------------------------------------------
          */
         'excludes' => [],
+        base_path('app/Http/Controllers') => [
+            'exclude' => [],
+            'paths' => [],
+        ],
 
         /*
         |--------------------------------------------------------------------------
@@ -126,6 +130,21 @@ return [
         'views' => base_path('resources/views/vendor/swagger-lume'),
     ],
 
+    'tags' => [
+    [
+        'name' => 'Posts',
+        'description' => 'Operations related to posts',
+    ],
+    [
+        'name' => 'Tags',
+        'description' => 'Operations related to tags',
+    ],
+    // Ajoutez d'autres tags selon vos contrôleurs
+],
+    
+
+
+    
     /*
     |--------------------------------------------------------------------------
     | API security definitions. Will be generated into documentation file.

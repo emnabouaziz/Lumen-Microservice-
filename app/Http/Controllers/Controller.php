@@ -16,7 +16,7 @@ class Controller extends BaseController
     *   )
     * )
     */
-    protected $elasticsearch;
+  /*  protected $elasticsearch;
 
   
     public function __construct(ElasticsearchService $elasticsearch)
@@ -41,5 +41,5 @@ class Controller extends BaseController
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    }
+    }*/
 }

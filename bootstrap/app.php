@@ -43,16 +43,19 @@ $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );
+$app->register(App\Providers\ElasticsearchServiceProvider::class);
+
 
 $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
-
-$app->singleton(App\Services\ElasticsearchService::class, function ($app) {
+$app->singleton('App\Services\ElasticsearchService', function ($app) {
     return new App\Services\ElasticsearchService();
 });
-
+$app->withFacades(true, [
+    Illuminate\Support\Facades\Redis::class => 'Redis',
+]);
 /*
 |--------------------------------------------------------------------------
 | Register Config Files
@@ -99,6 +102,7 @@ $app->configure('app');
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

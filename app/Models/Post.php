@@ -1,16 +1,17 @@
 <?php
-
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    protected $fillable = ['title', 'content'];
+    use SoftDeletes;
 
-    protected $primaryKey = 'post_id';
+    protected $fillable = ['title', 'content', 'is_default', 'can_delete'];
 
     public function tags()
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, 'post_tag');
     }
 }

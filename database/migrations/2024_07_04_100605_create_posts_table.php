@@ -6,19 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('content');
+            $table->boolean('is_default')->default(false);
+            $table->boolean('can_delete')->default(true);
             $table->timestamps();
-            $table->boolean('is_default')->default(false)->nullable;
-            $table->boolean('can_delete')->default(true)->nullable;
             $table->softDeletes();
+
         });
     }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::dropIfExists('posts');

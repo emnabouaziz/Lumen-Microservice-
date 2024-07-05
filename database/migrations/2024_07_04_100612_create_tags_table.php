@@ -13,9 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('post_tag', function (Blueprint $table) {
+        Schema::create('tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->boolean('is_default')->default(false);
+            $table->boolean('can_delete')->default(true);
             $table->timestamps();
-            $table->softDeleted();
+            $table->softDeletes();
         });
     }
 
@@ -26,9 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('post_tag', function (Blueprint $table) {
-            $table->dropTimestamps();
-            $table->dropSoftDeleted();
-        });
+        Schema::dropIfExists('tags');
     }
 };

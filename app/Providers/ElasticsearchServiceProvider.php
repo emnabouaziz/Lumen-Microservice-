@@ -1,46 +1,31 @@
 <?php
 
-namespace App\Services;
+namespace App\Providers;
 
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ServiceProvider;
+use App\Services\ElasticsearchService;
 
-class ElasticsearchService
+class ElasticsearchServiceProvider extends ServiceProvider
 {
-    protected $client;
-
-    public function __construct()
+    /**
+     * Register services.
+     *
+     * @return void
+     */
+    public function register()
     {
-        $hosts = [env('ELASTICSEARCH_HOSTS', 'localhost:9200')];
-
-        // Création d'une instance de Client Elasticsearch
-        $this->client = new Client(['hosts' => $hosts]);
+        $this->app->singleton(ElasticsearchService::class, function ($app) {
+            return new ElasticsearchService();
+        });
     }
 
     /**
-     * Récupère l'instance du client Elasticsearch configuré.
+     * Bootstrap services.
      *
-     * @return \Elasticsearch\Client
+     * @return void
      */
-    public function getClient()
+    public function boot()
     {
-        return $this->client;
-    }
-
-    /**
-     * Exemple de méthode pour tester la connexion Elasticsearch.
-     *
-     * @return array
-     */
-    public function testConnection()
-    {
-        try {
-            $info = $this->client->info();
-            return ['success' => true, 'message' => 'Connexion Elasticsearch réussie.', 'info' => $info];
-        } catch (\Exception $e) {
-            Log::error('Erreur de connexion Elasticsearch: ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur de connexion Elasticsearch. Vérifiez les logs pour plus de détails.'];
-        }
+        //
     }
 }
