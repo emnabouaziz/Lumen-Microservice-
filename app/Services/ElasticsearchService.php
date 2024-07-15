@@ -2,20 +2,72 @@
 
 namespace App\Services;
 
-use Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\ClientBuilder;
+use Illuminate\Http\Request;
 
-class ElasticsearchService
+class ElasticsearchService 
 {
     protected $client;
 
     public function __construct()
     {
-        $hosts = [env('ELASTICSEARCH_HOSTS')];
-        $this->client = ClientBuilder::create()->setHosts($hosts)->build();
+        $this->client = ClientBuilder::create()->setHosts(['localhost:9200'])->build();
+    }
+    public function indexExists($index)
+    {
+        return $this->client->indices()->exists(['index' => $index]);
     }
 
-    public function getClient()
+    public function createIndex($index)
     {
-        return $this->client;
+        $params = [
+            'index' => $index,
+            // Add more settings and mappings if needed
+            'body' => [
+                'settings' => [
+                    'number_of_shards' => 1,
+                    'number_of_replicas' => 0,
+                ],
+            ],
+        ];
+
+        return $this->client->indices()->create($params);
+    }
+
+    public function indexDocument($index, $id, $data)
+    {
+        $params = [
+            'index' => $index,
+            'id' => $id,
+            'body' => $data
+        ];
+
+        return $this->client->index($params);
+    }
+
+    public function deleteDocument($index, $id)
+    {
+        $params = [
+            'index' => $index,
+            'id' => $id
+        ];
+
+        return $this->client->delete($params);
+    }
+
+    public function search($index, $field, $text)
+    {
+        $params = [
+            'index' => $index,
+            'body' => [
+                'query' => [
+                    'match' => [
+                        $field => $text
+                    ]
+                ]
+            ]
+        ];
+
+        return $this->client->search($params);
     }
 }

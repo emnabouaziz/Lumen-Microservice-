@@ -2,6 +2,13 @@
 
 return [
     'hosts' => [
-        env('ELASTICSEARCH_HOSTS'),
+
+       [  
+           'hosts' => env('ELASTICSEARCH_HOSTS'),
+           
+
+
+
+       ] 
     ],
 ];

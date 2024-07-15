@@ -6,11 +6,13 @@
     "type": "project",
     "require": {
         "php": "^8.0",
+        "babenkoivan/elastic-scout-driver": "^3.2",
         "darkaonline/swagger-lume": "^11.0",
         "elasticsearch/elasticsearch": "^8.14",
         "illuminate/database": "^9.52",
         "illuminate/redis": "*",
         "laravel/lumen-framework": "^9.0",
+        "laravel/scout": "^10.10",
         "predis/predis": "2.2"
     },
     "require-dev": {

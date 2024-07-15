@@ -1,45 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Laravel\Lumen\Routing\Controller as BaseController;
-use App\Services\ElasticsearchService;
-use Illuminate\Http\Request;
+use Darkaonline\L5Swagger\Annotations as OA;
+/**
+ * @OA\Info(
+ *      version="3.0.0",
+ *      title="Microservice Test Lumen Project API Documentation",
+ *      description="Enjoy with our documentation of Microservice Lumen Test API.",
+ *      @OA\Contact(
+ *          email="admin@admin.com"
+ *      ),
+ *      @OA\License(
+ *          name="Apache 2.0",
+ *          url="http://www.apache.org/licenses/LICENSE-2.0.html"
+ *      )
+ * )
+ *
+ * @OA\Server(
+ *      url=SWAGGER_LUME_CONST_HOST,
+ *      description="Demo API Server"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *      securityScheme="bearer",
+ *      type="http",
+ *      scheme="Bearer",
+ *      bearerFormat="JWT",
+ * )
+ */
 class Controller extends BaseController
-{     /**
-    * @OA\Info(
-    *   title="Example API",
-    *   version="1.0",
-    *   @OA\Contact(
-    *     email="support@example.com",
-    *     name="Support Team"
-    *   )
-    * )
-    */
-  /*  protected $elasticsearch;
-
-  
-    public function __construct(ElasticsearchService $elasticsearch)
-    {
-        $this->elasticsearch = $elasticsearch;
-    }
-
-    public function index(Request $request)
-    {
-        $client = $this->elasticsearch->getClient();
-
-        // Exemple de requête Elasticsearch
-        $params = [
-            'index' => 'my_index',
-            'type' => 'my_type',
-            'id' => 'my_id',
-        ];
-
-        try {
-            $response = $client->get($params);
-            return response()->json($response);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }*/
+{
 }
