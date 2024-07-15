@@ -1,9 +1,9 @@
 <?php
-// tests/ElasticsearchTest.php
 
 namespace Tests;
 
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
+use Elastic\Elasticsearch\ClientBuilder;
 
 class ElasticsearchTest extends BaseTestCase
 {
@@ -14,21 +14,18 @@ class ElasticsearchTest extends BaseTestCase
      */
     public function createApplication()
     {
-        return require __DIR__.'/../bootstrap/app.php';
+        return require __DIR__.'/../../bootstrap/app.php';
     }
 
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testElasticsearchConnection()
+    /** @test */
+    public function test_elasticsearch_connection()
     {
-        $response = $this->get('/aa'); // Adjust the route according to your setup
+        $client = ClientBuilder::create()
+            ->setHosts([env('ELASTICSEARCH_HOST')])
+            ->build();
 
-        $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'PostgreSQL connected successfully', // Adjust the expected message
-                 ]);
+        $health = $client->ping();
+
+        $this->assertTrue($health, 'Elasticsearch is not connected');
     }
 }

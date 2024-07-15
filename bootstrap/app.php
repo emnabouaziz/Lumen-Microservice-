@@ -68,6 +68,10 @@ $app->withFacades(true, [
 */
 
 $app->configure('app');
+//$app->configure('elasticsearch');
+//$app->configure('explorer');
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -98,11 +102,14 @@ $app->configure('app');
 | totally optional, so you are not required to uncomment this line.
 |
 */
-
-$app->register(App\Providers\AppServiceProvider::class);
-$app->register(App\Providers\AuthServiceProvider::class);
-$app->register(App\Providers\EventServiceProvider::class);
+$app->singleton(App\Services\ElasticsearchService::class, function ($app) {
+    return new App\Services\ElasticsearchService();
+});
+//$app->register(App\Providers\AppServiceProvider::class);
+//$app->register(App\Providers\AuthServiceProvider::class);
+//$app->register(App\Providers\EventServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
+//$app->register(Laravel\Scout\ScoutServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
