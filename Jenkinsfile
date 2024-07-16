@@ -17,7 +17,7 @@ pipeline {
                     sh """
                     sonar-scanner \
                     -Dsonar.projectKey=test-lumen \
-                    -Dsonar.projectName='test-lumen' \
+                    -Dsonar.projectName=test-lumen \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://localhost:9000 \
                     -Dsonar.php.exclusions=vendor/** \
