@@ -13,7 +13,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 // Analyse SonarQube
-                withSonarQubeEnv('SonarQube Server') {
+                withSonarQubeEnv('sonarqube') {
                     sh """
                     sonar-scanner \
                     -Dsonar.projectKey=test-lumen \
