@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Git Checkout') {
             steps {
-                // Checkout du code depuis GitLab
+                // Checkout code from GitLab
                 git branch: 'develop', url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git'
                 echo 'Git Checkout Completed'
             }
@@ -12,7 +12,8 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                 withSonarQubeEnv('SonarQube Server') {
+                // Run SonarQube analysis
+                withSonarQubeEnv('SonarQube Server') {
                     bat '''
                     sonar-scanner.bat ^
                     -Dsonar.projectKey=test-lumen ^
@@ -23,13 +24,14 @@ pipeline {
                     -Dsonar.php.tests.reportPath=test-reports.xml
                     '''
                     echo 'SonarQube Analysis Completed'
+                }
             }
         }
     }
 
     post {
         always {
-            // Archivage des rapports et des artefacts
+            // Archive test reports and artifacts
             junit '**/reports/**/*.xml'
             archiveArtifacts artifacts: 'storage/logs/*.log', allowEmptyArchive: true
         }
