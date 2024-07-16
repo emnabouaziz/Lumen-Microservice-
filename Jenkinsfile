@@ -12,19 +12,17 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Analyse SonarQube
-                withSonarQubeEnv('sonarqube') {
-                    sh """
-                    sonar-scanner \
-                    -Dsonar.projectKey=test-lumen \
-                    -Dsonar.projectName=test-lumen \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.php.exclusions=vendor/** \
+                 withSonarQubeEnv('SonarQube Server') {
+                    bat '''
+                    sonar-scanner.bat ^
+                    -Dsonar.projectKey=test-lumen ^
+                    -Dsonar.projectName="test-lumen" ^
+                    -Dsonar.sources=. ^
+                    -Dsonar.host.url=http://localhost:9000 ^
+                    -Dsonar.php.exclusions=vendor/** ^
                     -Dsonar.php.tests.reportPath=test-reports.xml
-                    """
-                }
-                echo 'SonarQube Analysis Completed'
+                    '''
+                    echo 'SonarQube Analysis Completed'
             }
         }
     }
