@@ -10,14 +10,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                // Installer les dépendances PHP via Composer
-                sh 'composer install'
-                echo 'Dependencies Installation Completed'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 // Analyse SonarQube
