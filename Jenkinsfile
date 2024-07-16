@@ -4,29 +4,44 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Checkout du code depuis GitLab
                 git branch: 'develop', url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git'
+                echo 'Git Checkout Completed'
             }
         }
 
-        stage('SonarQube analysis') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    // Utilisation de WORKSPACE pour obtenir un chemin absolu
-                    def workspacePath = "${WORKSPACE}".replaceAll("\\\\", "/")
-                    docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                        withSonarQubeEnv('SonarQube Server') {
-                            sh "docker run --rm -v ${workspacePath}:/usr/src -w /usr/src sonarsource/sonar-scanner-cli:latest /opt/sonar-scanner/bin/sonar-scanner"
-                        }
-                    }
+                // Installer les dépendances PHP via Composer
+                sh 'composer install'
+                echo 'Dependencies Installation Completed'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                // Analyse SonarQube
+                withSonarQubeEnv('SonarQube Server') {
+                    sh """
+                    sonar-scanner \
+                    -Dsonar.projectKey=test-lumen \
+                    -Dsonar.projectName='test-lumen' \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.php.exclusions=vendor/** \
+                    -Dsonar.php.tests.reportPath=test-reports.xml
+                    """
                 }
+                echo 'SonarQube Analysis Completed'
             }
         }
     }
 
     post {
         always {
+            // Archivage des rapports et des artefacts
             junit '**/reports/**/*.xml'
-            archiveArtifacts artifacts: 'storage/logs/lumen.log', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'storage/logs/*.log', allowEmptyArchive: true
         }
     }
 }
