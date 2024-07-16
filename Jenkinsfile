@@ -9,17 +9,19 @@ pipeline {
         }
 
         stage('SonarQube analysis') {
-            steps {
-                script {
-                    docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                        withSonarQubeEnv('SonarQube Server') {
-                            sh '/opt/sonar-scanner/bin/sonar-scanner'
-                        }
-                    }
+    steps {
+        script {
+            docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                // Utilisation de WORKSPACE pour obtenir un chemin absolu
+                def workspacePath = "${WORKSPACE}".replaceAll("\\\\", "/")
+                withSonarQubeEnv('SonarQube Server') {
+                    sh "docker run --rm -v ${workspacePath}:/usr/src -w /usr/src sonarsource/sonar-scanner-cli:latest /opt/sonar-scanner/bin/sonar-scanner"
                 }
             }
         }
     }
+}
+
 
     post {
         always {
