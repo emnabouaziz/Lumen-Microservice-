@@ -19,7 +19,10 @@ pipeline {
                     -Dsonar.projectKey=test-lumen ^
                     -Dsonar.projectName="test-lumen" ^
                     -Dsonar.sources=. ^
-                    -Dsonar.host.url=http://localhost:9000 
+                    -Dsonar.host.url=http://localhost:9000 ^
+                    -Dsonar.login=sqp_b166d25d821ec2b6bc0efa84baba4f556e622820 ^
+                    -Dsonar.exclusions=vendor/**
+                    '''
                     '''
                     echo 'SonarQube Analysis Completed'
                 }
