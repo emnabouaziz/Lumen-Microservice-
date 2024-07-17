@@ -23,7 +23,6 @@ pipeline {
                     -Dsonar.login=sqp_b166d25d821ec2b6bc0efa84baba4f556e622820 ^
                     -Dsonar.exclusions=vendor/**
                     '''
-                    '''
                     echo 'SonarQube Analysis Completed'
                 }
             }
