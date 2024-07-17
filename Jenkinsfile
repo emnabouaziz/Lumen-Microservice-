@@ -29,10 +29,8 @@ pipeline {
     
 
     post {
-        always {
-            // Archive test reports and artifacts
-            junit '**/reports/**/*.xml'
-            archiveArtifacts artifacts: 'storage/logs/*.log', allowEmptyArchive: true
-        }
+            always {
+                junit '**/target/surefire-reports/**/*.xml'
+            }
     }
 }
