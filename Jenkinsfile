@@ -12,10 +12,9 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube analysis
-                withSonarQubeEnv('sonarqube') {
+
                     bat '''
-                    sonar-scanner.bat ^
+                    "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
                     -Dsonar.projectKey=test-lumen ^
                     -Dsonar.projectName="test-lumen" ^
                     -Dsonar.sources=. ^
@@ -27,7 +26,7 @@ pipeline {
                 }
             }
         }
-    }
+    
 
     post {
         always {
