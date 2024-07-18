@@ -28,12 +28,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo 'Build stage - Lumen does not require a build step'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 bat '''
@@ -53,7 +47,7 @@ pipeline {
             steps {
                 script {
                     def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'  // Remplacez par le chemin de votre répertoire
-                    def zipFilePath = 'artifact.zip'
+                    def zipFilePath = "${env.WORKSPACE}\\artifact.zip"  // Utilisation de WORKSPACE pour créer le chemin complet
                     
                     // Créer un fichier ZIP de l'application
                     bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
@@ -66,7 +60,7 @@ pipeline {
             steps {
                 script {
                     // Trouver l'artifact à uploader
-                    def artifactPath = findFiles(glob: 'artifact.zip')[0].path
+                    def artifactPath = "${env.WORKSPACE}\\artifact.zip"
 
                     // Utiliser le commit ID comme version pour l'upload
                     def version = env.GIT_COMMIT_ID
@@ -76,9 +70,9 @@ pipeline {
                         nexusVersion: 'nexus3',
                         protocol: 'http',
                         nexusUrl: env.NEXUS_URL,
-                        groupId: '',
+                        groupId: 'com.example',  // Remplacez par votre groupId approprié
                         version: version,
-                        repository: 'http://localhost:8082/repository/maven-releases/',
+                        repository: 'maven-releases',  // Nom du repository Maven où uploader
                         credentialsId: 'nexus-credentials',
                         artifacts: [
                             [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']  
