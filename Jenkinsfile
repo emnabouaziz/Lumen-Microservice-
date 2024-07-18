@@ -1,12 +1,44 @@
 pipeline {
     agent any
 
+   environment {
+        SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
+    }
+
     stages {
         stage('Git Checkout') {
             steps {
-                // Checkout code from GitLab
-                git branch: 'develop', url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git'
-                echo 'Git Checkout Completed'
+                script {
+                    def scmInfo = checkout scm: [
+                        $class: 'GitSCM', 
+                        branches: [[name: '*/develop']], 
+                        userRemoteConfigs: [[url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git']]
+                    ]
+                    env.GIT_COMMIT_ID = scmInfo.GIT_COMMIT
+                    echo "Checked out commit ID: ${env.GIT_COMMIT_ID}"
+                }
+            }
+        }
+
+        stage('Install package') {
+            steps {
+                // Commande pour installer les dépendances
+                bat 'composer install'
+            }
+        }
+
+        stage('Unit tests') {
+            steps {
+                // Commande pour exécuter les tests unitaires
+                bat 'vendor\\bin\\phpunit'
+            }
+            
+        }
+
+        stage('Build') {
+            steps {
+                // Commande pour construire le projet
+                echo 'Build stage - Lumen does not require a build step'
             }
         }
 
