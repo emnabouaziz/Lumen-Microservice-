@@ -11,6 +11,10 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     | and give it the Closure to call when that URI is requested.
     |
     */
+    
+$router->get('/', function () use ($router) {
+    return $router->app->version();
+});
     $router->options('/{any:.*}', function () {
         return response(['status' => 'success'], 200);
     });
@@ -31,6 +35,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     $router->delete('/posts/{id:\d+}/force', 'API\V1\PostController@forceDelete');
     $router->get('posts/search', 'API\V1\PostController@search');
     $router->get('posts/initialize-index', 'API\V1\PostController@initializeIndex');
+    
+
 
 
     $router->get('/tags', 'API\V1\TagController@index');
