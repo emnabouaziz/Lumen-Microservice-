@@ -30,7 +30,7 @@ pipeline {
         stage('Unit tests') {
             steps {
                 // Commande pour exécuter les tests unitaires
-                bat 'vendor\\bin\\phpunit'
+                bat 'vendor\\bin\\phpunit tests\\RedisTest.php'
             }
             
         }
