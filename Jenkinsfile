@@ -3,14 +3,18 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
-        REDIS_CLIENT = 'predis'
-        REDIS_HOST = '127.0.0.1'
-        REDIS_PORT = '6379'
-        REDIS_DATABASE = '0'
-        REDIS_PASSWORD = 'null'
     }
 
     stages {
+        stage('Load .env file') {
+            steps {
+                script {
+                    // Charger les variables du fichier .env
+                    loadEnv()
+                }
+            }
+        }
+
         stage('Git Checkout') {
             steps {
                 script {
@@ -25,26 +29,30 @@ pipeline {
             }
         }
 
-        stage('Install packages') {
+        stage('Install package') {
             steps {
+                // Commande pour installer les dépendances
                 bat 'composer install'
             }
         }
 
         stage('Unit tests') {
             steps {
+                // Commande pour exécuter les tests unitaires
                 bat 'vendor\\bin\\phpunit tests\\RedisTest.php'
             }
         }
 
         stage('Build') {
             steps {
+                // Commande pour construire le projet
                 echo 'Build stage - Lumen does not require a build step'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
+                // Analyse SonarQube
                 bat '''
                 "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
                 -Dsonar.projectKey=test-lumen ^
@@ -58,4 +66,30 @@ pipeline {
             }
         }
     }
+}
+
+/**
+ * Load variables from a .env file.
+ * This assumes the .env file is in the same directory as the Jenkinsfile.
+ */
+def loadEnv() {
+    withEnv(readEnv('.env')) {
+        echo 'Loaded .env file successfully'
+    }
+}
+
+/**
+ * Read environment variables from a file.
+ * @param filename Name of the file to read environment variables from.
+ * @return Map of environment variables.
+ */
+def readEnv(String filename) {
+    def envMap = [:]
+    new File(filename).eachLine { line ->
+        if (line.contains('=')) {
+            def (key, value) = line.split('=', 2)
+            envMap[key.trim()] = value.trim()
+        }
+    }
+    return envMap
 }
