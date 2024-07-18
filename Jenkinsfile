@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'  // L'ID des informations d'identification Nexus
-        NEXUS_URL = 'http://localhost:8082/repository/maven-releases/'  // URL de votre dépôt Nexus
+        NEXUS_URL = 'http://localhost:8082'
     }
 
     stages {
@@ -68,20 +68,23 @@ pipeline {
                     // Trouver l'artifact à uploader
                     def artifactPath = findFiles(glob: 'artifact.zip')[0].path
 
+                    // Utiliser le commit ID comme version pour l'upload
+                    def version = env.GIT_COMMIT_ID
+
                     // Upload l'artifact sur Nexus
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: 'localhost:8082',
-                        groupId: 'com.example',
-                        version: "${env.GIT_COMMIT_ID}",
+                        nexusUrl: env.NEXUS_URL,
+                        groupId: '',
+                        version: version,
                         repository: 'maven-releases',
                         credentialsId: env.NEXUS_CREDENTIALS_ID,
                         artifacts: [
-                            [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']
+                            [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']  
                         ]
                     )
-                    echo 'Artifact uploaded to Nexus'
+                    echo 'Artifact uploaded to Nexus with commit ID as version'
                 }
             }
         }
