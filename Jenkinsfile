@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
-       
+        NEXUS_CREDENTIALS_ID = 'nexus-credentials'  // L'ID des informations d'identification Nexus
+        NEXUS_URL = 'http://localhost:8082/repository/maven-releases/'  // URL de votre dépôt Nexus
     }
 
     stages {
@@ -45,6 +46,43 @@ pipeline {
                 -Dsonar.exclusions=vendor/**
                 '''
                 echo 'SonarQube Analysis Completed'
+            }
+        }
+
+        stage('Package Artifact') {
+            steps {
+                script {
+                    def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'  // Remplacez par le chemin de votre répertoire
+                    def zipFilePath = 'artifact.zip'
+                    
+                    // Créer un fichier ZIP de l'application
+                    bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath}"
+                    echo 'Artifact packaged'
+                }
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                script {
+                    // Trouver l'artifact à uploader
+                    def artifactPath = findFiles(glob: 'artifact.zip')[0].path
+
+                    // Upload l'artifact sur Nexus
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: 'localhost:8082',
+                        groupId: 'com.example',
+                        version: "${env.GIT_COMMIT_ID}",
+                        repository: 'maven-releases',
+                        credentialsId: env.NEXUS_CREDENTIALS_ID,
+                        artifacts: [
+                            [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']
+                        ]
+                    )
+                    echo 'Artifact uploaded to Nexus'
+                }
             }
         }
     }
