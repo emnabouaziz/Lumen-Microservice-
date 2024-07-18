@@ -5,7 +5,6 @@ pipeline {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
         REDIS_CLIENT=predis
         REDIS_HOST=127.0.0.1
-        REDIS_PASSWORD=null
         REDIS_PORT=6379
         REDIS_DATABASE=0
     }
