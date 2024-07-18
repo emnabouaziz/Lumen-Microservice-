@@ -56,7 +56,7 @@ pipeline {
                     def zipFilePath = 'artifact.zip'
                     
                     // Créer un fichier ZIP de l'application
-                    bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath}"
+                    bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
                     echo 'Artifact packaged'
                 }
             }
