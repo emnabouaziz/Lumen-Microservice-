@@ -1,8 +1,13 @@
 pipeline {
     agent any
 
-   environment {
+    environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
+        REDIS_CLIENT = 'predis'
+        REDIS_HOST = '127.0.0.1'
+        REDIS_PORT = '6379'
+        REDIS_DATABASE = '0'
+        REDIS_PASSWORD = 'null'
     }
 
     stages {
@@ -20,45 +25,37 @@ pipeline {
             }
         }
 
-        stage('Install package') {
+        stage('Install packages') {
             steps {
-                // Commande pour installer les dépendances
                 bat 'composer install'
             }
         }
 
         stage('Unit tests') {
             steps {
-                // Commande pour exécuter les tests unitaires
                 bat 'vendor\\bin\\phpunit tests\\RedisTest.php'
             }
-            
         }
 
         stage('Build') {
             steps {
-                // Commande pour construire le projet
                 echo 'Build stage - Lumen does not require a build step'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-
-                    bat '''
-                    "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
-                    -Dsonar.projectKey=test-lumen ^
-                    -Dsonar.projectName="test-lumen" ^
-                    -Dsonar.sources=. ^
-                    -Dsonar.host.url=http://localhost:9000 ^
-                    -Dsonar.login=sqp_b166d25d821ec2b6bc0efa84baba4f556e622820 ^
-                    -Dsonar.exclusions=vendor/**
-                    '''
-                    echo 'SonarQube Analysis Completed'
-                }
+                bat '''
+                "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
+                -Dsonar.projectKey=test-lumen ^
+                -Dsonar.projectName="test-lumen" ^
+                -Dsonar.sources=. ^
+                -Dsonar.host.url=http://localhost:9000 ^
+                -Dsonar.login=sqp_b166d25d821ec2b6bc0efa84baba4f556e622820 ^
+                -Dsonar.exclusions=vendor/**
+                '''
+                echo 'SonarQube Analysis Completed'
             }
         }
-    
-
-   
+    }
 }
