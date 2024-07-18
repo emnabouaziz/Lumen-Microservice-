@@ -3,10 +3,11 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
-        REDIS_CLIENT=predis
-        REDIS_HOST=127.0.0.1
-        REDIS_PORT=6379
-        REDIS_DATABASE=0
+        REDIS_CLIENT = 'predis'
+        REDIS_HOST = '127.0.0.1'
+        REDIS_PORT = '6379'
+        REDIS_DATABASE = '0'
+        REDIS_PASSWORD = 'null'
     }
 
     stages {
@@ -24,30 +25,26 @@ pipeline {
             }
         }
 
-        stage('Install package') {
+        stage('Install packages') {
             steps {
-                // Commande pour installer les dépendances
                 bat 'composer install'
             }
         }
 
         stage('Unit tests') {
             steps {
-                // Commande pour exécuter les tests unitaires
                 bat 'vendor\\bin\\phpunit tests'
             }
         }
 
         stage('Build') {
             steps {
-                
                 echo 'Build stage - Lumen does not require a build step'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Analyse SonarQube
                 bat '''
                 "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
                 -Dsonar.projectKey=test-lumen ^
