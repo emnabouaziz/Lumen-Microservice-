@@ -28,6 +28,13 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                // Commande pour construire le projet
+                echo 'Build stage - Lumen does not require a build step'
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 bat '''
@@ -46,10 +53,10 @@ pipeline {
         stage('Package Artifact') {
             steps {
                 script {
-                    def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'  // Remplacez par le chemin de votre répertoire
-                    def zipFilePath = "${env.WORKSPACE}\\artifact.zip"  // Utilisation de WORKSPACE pour créer le chemin complet
+                    def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'  
+                    def zipFilePath = "${env.WORKSPACE}\\artifact.zip"  
                     
-                    // Créer un fichier ZIP de l'application
+                   
                     bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
                     echo 'Artifact packaged'
                 }
@@ -59,20 +66,19 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    // Trouver l'artifact à uploader
+                   
                     def artifactPath = "${env.WORKSPACE}\\artifact.zip"
 
-                    // Utiliser le commit ID comme version pour l'upload
+                    
                     def version = env.GIT_COMMIT_ID
 
-                    // Upload l'artifact sur Nexus
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
                         nexusUrl: env.NEXUS_URL,
-                        groupId: '',  // Remplacez par votre groupId approprié
+                        groupId: env.MAVEN_GROUP_ID,  
                         version: version,
-                        repository: 'maven-releases',  // Nom du repository Maven où uploader
+                        repository: 'maven-releases',  
                         credentialsId: 'nexus-credentials',
                         artifacts: [
                             [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']  
