@@ -78,8 +78,8 @@ pipeline {
                         nexusUrl: env.NEXUS_URL,
                         groupId: '',
                         version: version,
-                        repository: 'maven-releases',
-                        credentialsId: env.NEXUS_CREDENTIALS_ID,
+                        repository: 'http://localhost:8082/repository/maven-releases/',
+                        credentialsId: 'nexus-credentials',
                         artifacts: [
                             [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']  
                         ]
