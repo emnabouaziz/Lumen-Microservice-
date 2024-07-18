@@ -70,7 +70,7 @@ pipeline {
                         nexusVersion: 'nexus3',
                         protocol: 'http',
                         nexusUrl: env.NEXUS_URL,
-                        groupId: 'com.example',  // Remplacez par votre groupId approprié
+                        groupId: '',  // Remplacez par votre groupId approprié
                         version: version,
                         repository: 'maven-releases',  // Nom du repository Maven où uploader
                         credentialsId: 'nexus-credentials',
