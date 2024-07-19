@@ -42,7 +42,17 @@ pipeline {
             }
         }
 
-        
+         stage('Package Artifact') {
+            steps {
+                script {
+                    def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'
+                    def zipFilePath = "${env.WORKSPACE}\\artifact.zip"
+
+                    bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
+                    echo 'Artifact packaged'
+                }
+            }
+        }
 
         
 
