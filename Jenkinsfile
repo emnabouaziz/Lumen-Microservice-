@@ -24,7 +24,7 @@ pipeline {
                         branches: [[name: '*/develop']],
                         userRemoteConfigs: [[url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git']]
                     ]
-                    env.GIT_COMMIT_ID = scmInfo.GIT_COMMIT
+                    env.GIT_COMMIT_ID = scmInfo.GIT_COMMIT.take(8) 
                     echo "Checked out commit ID: ${env.GIT_COMMIT_ID}"
                 }
             }
@@ -58,10 +58,12 @@ pipeline {
             steps {
                 script {
                     def artifactPath = "${env.WORKSPACE}\\artifact.zip"
-                    def version = env.GIT_COMMIT_ID
+                    def shortVersion = env.GIT_COMMIT_ID  // Use shortened commit ID as version
+                    def nexusVresion = "v${shortVersion}" // Format version tag as 'v{shortVersion}'
+
 
                     withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                        def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${version}/${env.ARTIFACT_ID}-${version}.zip"
+                        def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${nexusVresion}/${env.ARTIFACT_ID}-${nexusVresion}.zip"
 
                         bat """
                         curl -v -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} --upload-file ${artifactPath} ${nexusUrl}
@@ -117,5 +119,46 @@ pipeline {
                 }
             }
         }
+
+        stage('Build Docker Image') {
+    steps {
+        script {
+            def version = env.GIT_COMMIT_ID
+            def dockerImageName = "my-app:${version}"
+
+            echo "Building Docker image: ${dockerImageName}"
+
+            bat """
+            docker build -t ${dockerImageName} .
+            """
+            echo "Docker image built: ${dockerImageName}"
+        }
+    }
+}
+stage('Minify Docker Image with Docker Slim') {
+    steps {
+        script {
+            def version = env.GIT_COMMIT_ID
+            def dockerImageName = "my-app:${version}"
+            def slimImageName = "my-app-slim:${version}"
+
+            echo "Minifying Docker image: ${dockerImageName} to ${slimImageName}"
+
+            // Ensure Docker Slim is installed
+            bat """
+            docker-slim --version
+            """
+
+            // Minify Docker image
+            bat """
+            docker-slim build ${dockerImageName} --tag ${slimImageName}
+            """
+
+            echo "Minified Docker image created: ${slimImageName}"
+        }
+    }
+}
+
+
     }
 }
