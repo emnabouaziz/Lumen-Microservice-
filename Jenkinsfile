@@ -85,25 +85,32 @@ pipeline {
                         curl -o NUL -s -w %%{http_code} "${nexusUrl}"
                         """, returnStdout: true).trim()
 
-                    // Affiche le code HTTP pour le débogage
                     echo "HTTP response code: ${response}"
 
+            def httpStatusCode = response.toInteger()
+
+            if (httpStatusCode == 200) {
+                echo "Artifact found in Nexus with version tag ${versionTag}"
+            } else {
+                error "Artifact not found or request failed with HTTP status ${httpStatusCode}"
+            }
         
                 }
             }
         }
 
-        stage('Download Artifact') {
-            steps {
-                script {
-                    def versionTag = params.VERSION_TAG
-                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+       stage('Download Artifact') {
+    steps {
+        script {
+            def versionTag = params.VERSION_TAG
+            def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
-                    bat "wget -O ${DOWNLOAD_PATH} \"${nexusUrl}\""
-                    echo "Artifact downloaded to ${DOWNLOAD_PATH}"
-                }
-            }
+            bat "curl -o ${DOWNLOAD_PATH} \"${nexusUrl}\""
+            echo "Artifact downloaded to ${DOWNLOAD_PATH}"
         }
+    }
+}
+
 
         stage('Unzip Artifact') {
             steps {
