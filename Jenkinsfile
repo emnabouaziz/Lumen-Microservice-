@@ -94,21 +94,26 @@ pipeline {
         }
 
         stage('Check Artifact in Nexus') {
-            steps {
-                script {
-                    // Vérifie si l'artifact est présent dans Nexus
-                    def versionTag = params.VERSION_TAG
-                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+    steps {
+        script {
+            // Construit l'URL pour vérifier l'existence de l'artifact
+            def versionTag = params.VERSION_TAG
+            def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
-                    def response = bat(script: "curl -o NUL -s -w '%{http_code}' ${nexusUrl}", returnStdout: true).trim()
-                    if (response == '200') {
-                        echo "Artifact found in Nexus with version tag ${versionTag}"
-                    } else {
-                        error "Artifact not found or request failed with HTTP status ${response}"
-                    }
-                }
+            // Affiche l'URL pour vérifier
+            echo "Checking artifact in Nexus at URL: ${nexusUrl}"
+
+            // Vérifie l'existence de l'artifact dans Nexus
+            def response = bat(script: "curl -o NUL -s -w \"%{http_code}\" ${nexusUrl}", returnStdout: true).trim()
+            if (response == '200') {
+                echo "Artifact found in Nexus with version tag ${versionTag}"
+            } else {
+                error "Artifact not found or request failed with HTTP status ${response}"
             }
         }
+    }
+}
+
 
         stage('Download Artifact') {
             steps {
