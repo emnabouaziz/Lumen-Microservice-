@@ -3,8 +3,10 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
-        NEXUS_CREDENTIALS_ID = 'nexus-credentials'  // L'ID des informations d'identification Nexus
-        NEXUS_URL = 'localhost:8082'
+        NEXUS_CREDENTIALS_ID = 'nexus-credentials'
+        NEXUS_URL = 'http://localhost:8082'
+        MAVEN_GROUP_ID = 'com.mycompany.project'
+        ARTIFACT_ID = 'my-app'
     }
 
     stages {
@@ -30,7 +32,6 @@ pipeline {
 
         stage('Build') {
             steps {
-                // Commande pour construire le projet
                 echo 'Build stage - Lumen does not require a build step'
             }
         }
@@ -56,7 +57,6 @@ pipeline {
                     def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'  
                     def zipFilePath = "${env.WORKSPACE}\\artifact.zip"  
                     
-                   
                     bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
                     echo 'Artifact packaged'
                 }
@@ -66,24 +66,16 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                   
                     def artifactPath = "${env.WORKSPACE}\\artifact.zip"
-
-                    
                     def version = env.GIT_COMMIT_ID
 
-                    nexusArtifactUploader(
-                        nexusVersion: 'nexus3',
-                        protocol: 'http',
-                        nexusUrl: env.NEXUS_URL,
-                        groupId: env.MAVEN_GROUP_ID,  
-                        version: version,
-                        repository: 'maven-releases',  
-                        credentialsId: 'nexus-credentials',
-                        artifacts: [
-                            [artifactId: 'my-app', classifier: '', file: artifactPath, type: 'zip']  
-                        ]
-                    )
+                    withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+                        def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${version}/${env.ARTIFACT_ID}-${version}.zip"
+
+                        bat """
+                        curl -v -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} --upload-file ${artifactPath} ${nexusUrl}
+                        """
+                    }
                     echo 'Artifact uploaded to Nexus with commit ID as version'
                 }
             }
