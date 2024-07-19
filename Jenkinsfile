@@ -42,32 +42,9 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                bat '''
-                "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
-                -Dsonar.projectKey=test-lumen ^
-                -Dsonar.projectName="test-lumen" ^
-                -Dsonar.sources=. ^
-                -Dsonar.host.url=http://localhost:9000 ^
-                -Dsonar.login=sqp_b166d25d821ec2b6bc0efa84baba4f556e622820 ^
-                -Dsonar.exclusions=vendor/**
-                '''
-                echo 'SonarQube Analysis Completed'
-            }
-        }
+        
 
-        stage('Package Artifact') {
-            steps {
-                script {
-                    def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'
-                    def zipFilePath = "${env.WORKSPACE}\\artifact.zip"
-
-                    bat "powershell Compress-Archive -Path ${directoryToZip}\\* -DestinationPath ${zipFilePath} -Update"
-                    echo 'Artifact packaged'
-                }
-            }
-        }
+        
 
         stage('Upload to Nexus') {
             steps {
@@ -87,7 +64,7 @@ pipeline {
             }
         }
 
-       stage('Check Artifact in Nexus') {
+stage('Check Artifact in Nexus') {
     steps {
         script {
             def versionTag = params.VERSION_TAG
@@ -97,8 +74,8 @@ pipeline {
 
             // Exécute la commande curl pour obtenir le code HTTP de la réponse
             def response = bat(script: """
-                curl -o NUL -s -w "%{http_code}" "${nexusUrl}"
-            """, returnStdout: true).trim()
+                curl -o NUL -s -w %%{http_code} "%s"
+                """.formatted(nexusUrl), returnStdout: true).trim()
 
             // Affiche le code HTTP pour le débogage
             echo "HTTP response code: ${response}"
@@ -111,6 +88,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Download Artifact') {
