@@ -87,13 +87,6 @@ pipeline {
 
                     echo "HTTP response code: ${response}"
 
-            def httpStatusCode = response.toInteger()
-
-            if (httpStatusCode == 200) {
-                echo "Artifact found in Nexus with version tag ${versionTag}"
-            } else {
-                error "Artifact not found or request failed with HTTP status ${httpStatusCode}"
-            }
         
                 }
             }
