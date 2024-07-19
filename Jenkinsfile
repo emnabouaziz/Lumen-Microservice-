@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'  // L'ID des informations d'identification Nexus
-        NEXUS_URL = 'http://localhost:8082'
+        NEXUS_URL = 'localhost:8082'
     }
 
     stages {
