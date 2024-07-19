@@ -88,7 +88,7 @@ pipeline {
                     // Affiche le code HTTP pour le débogage
                     echo "HTTP response code: ${response}"
 
-                    if (response == '200') {
+                    if (response == 200) {
                         echo "Artifact found in Nexus with version tag ${versionTag}"
                     } else {
                         error "Artifact not found or request failed with HTTP status ${response}"
