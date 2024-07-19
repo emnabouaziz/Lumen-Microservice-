@@ -19,7 +19,6 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 script {
-                    // Récupère le code depuis GitLab
                     def scmInfo = checkout scm: [
                         $class: 'GitSCM',
                         branches: [[name: '*/develop']],
@@ -33,21 +32,18 @@ pipeline {
 
         stage('Install packages') {
             steps {
-                // Installe les dépendances PHP
                 bat 'composer install'
             }
         }
 
         stage('Build') {
             steps {
-                // Affiche un message indiquant qu'aucune étape de construction n'est nécessaire pour Lumen
                 echo 'Build stage - Lumen does not require a build step'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                // Exécute l'analyse de code avec SonarQube
                 bat '''
                 "C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin\\sonar-scanner.bat" ^
                 -Dsonar.projectKey=test-lumen ^
@@ -64,7 +60,6 @@ pipeline {
         stage('Package Artifact') {
             steps {
                 script {
-                    // Compresse les fichiers du projet en un fichier ZIP
                     def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'
                     def zipFilePath = "${env.WORKSPACE}\\artifact.zip"
 
@@ -77,7 +72,6 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    // Télécharge l'artifact ZIP dans Nexus
                     def artifactPath = "${env.WORKSPACE}\\artifact.zip"
                     def version = env.GIT_COMMIT_ID
 
@@ -94,35 +88,30 @@ pipeline {
         }
 
         stage('Check Artifact in Nexus') {
-    steps {
-        script {
-            // Construit l'URL pour vérifier l'existence de l'artifact
-            def versionTag = params.VERSION_TAG
-            def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+            steps {
+                script {
+                    def versionTag = params.VERSION_TAG
+                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
-            // Affiche l'URL pour vérifier
-            echo "Checking artifact in Nexus at URL: ${nexusUrl}"
+                    echo "Checking artifact in Nexus at URL: ${nexusUrl}"
 
-            // Vérifie l'existence de l'artifact dans Nexus
-            def response = bat(script: "curl -o NUL -s -w \"%{http_code}\" ${nexusUrl}", returnStdout: true).trim()
-            if (response == '200') {
-                echo "Artifact found in Nexus with version tag ${versionTag}"
-            } else {
-                error "Artifact not found or request failed with HTTP status ${response}"
+                    def response = bat(script: "curl -o NUL -s -w \"%{http_code}\" \"${nexusUrl}\"", returnStdout: true).trim()
+                    if (response == '200') {
+                        echo "Artifact found in Nexus with version tag ${versionTag}"
+                    } else {
+                        error "Artifact not found or request failed with HTTP status ${response}"
+                    }
+                }
             }
         }
-    }
-}
-
 
         stage('Download Artifact') {
             steps {
                 script {
-                    // Télécharge l'artifact depuis Nexus
                     def versionTag = params.VERSION_TAG
                     def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
-                    bat "wget -O ${DOWNLOAD_PATH} ${nexusUrl}"
+                    bat "wget -O ${DOWNLOAD_PATH} \"${nexusUrl}\""
                     echo "Artifact downloaded to ${DOWNLOAD_PATH}"
                 }
             }
@@ -131,14 +120,10 @@ pipeline {
         stage('Unzip Artifact') {
             steps {
                 script {
-                    // Décompresse l'archive ZIP téléchargée
                     def zipFilePath = DOWNLOAD_PATH
                     def extractPath = EXTRACT_PATH
 
-                    // Crée le répertoire si nécessaire
                     bat "if not exist ${extractPath} mkdir ${extractPath}"
-
-                    // Décompresse le fichier
                     bat "powershell Expand-Archive -Path ${zipFilePath} -DestinationPath ${extractPath} -Force"
                     echo "Artifact unzipped to ${extractPath}"
                 }
