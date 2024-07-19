@@ -42,7 +42,7 @@ pipeline {
             }
         }
 
-         stage('Package Artifact') {
+        stage('Package Artifact') {
             steps {
                 script {
                     def directoryToZip = 'C:\\Users\\DELL\\Documents\\boilerplateeeee\\microservice'
@@ -53,8 +53,6 @@ pipeline {
                 }
             }
         }
-
-        
 
         stage('Upload to Nexus') {
             steps {
@@ -74,32 +72,30 @@ pipeline {
             }
         }
 
-stage('Check Artifact in Nexus') {
-    steps {
-        script {
-            def versionTag = params.VERSION_TAG
-            def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+        stage('Check Artifact in Nexus') {
+            steps {
+                script {
+                    def versionTag = params.VERSION_TAG
+                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
-            echo "Checking artifact in Nexus at URL: ${nexusUrl}"
+                    echo "Checking artifact in Nexus at URL: ${nexusUrl}"
 
-            // Exécute la commande curl pour obtenir le code HTTP de la réponse
-            def response = bat(script: """
-                curl -o NUL -s -w %%{http_code} "%s"
-                """.formatted(nexusUrl), returnStdout: true).trim()
+                    // Exécute la commande curl pour obtenir le code HTTP de la réponse
+                    def response = bat(script: """
+                        curl -o NUL -s -w %%{http_code} "${nexusUrl}"
+                        """, returnStdout: true).trim()
 
-            // Affiche le code HTTP pour le débogage
-            echo "HTTP response code: ${response}"
+                    // Affiche le code HTTP pour le débogage
+                    echo "HTTP response code: ${response}"
 
-            if (response == '200') {
-                echo "Artifact found in Nexus with version tag ${versionTag}"
-            } else {
-                error "Artifact not found or request failed with HTTP status ${response}"
+                    if (response == '200') {
+                        echo "Artifact found in Nexus with version tag ${versionTag}"
+                    } else {
+                        error "Artifact not found or request failed with HTTP status ${response}"
+                    }
+                }
             }
         }
-    }
-}
-
-
 
         stage('Download Artifact') {
             steps {
