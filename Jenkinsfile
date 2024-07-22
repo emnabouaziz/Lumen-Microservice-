@@ -134,30 +134,44 @@ pipeline {
             echo "Docker image built: ${dockerImageName}"
         }
     }
-}
-stage('Minify Docker Image with Docker Slim') {
-    steps {
-        script {
-            def version = env.GIT_COMMIT_ID
-            def dockerImageName = "my-app:${version}"
-            def slimImageName = "my-app-slim:${version}"
+}        stage('Tag and Push Docker Image to Nexus') {
+            steps {
+                script {
+                    def version = env.GIT_COMMIT_ID
+                    def dockerImageName = "my-app:${version}"
+                    def nexusRepoUrl = "http://localhost:8082/repository/docker-host/"
 
-            echo "Minifying Docker image: ${dockerImageName} to ${slimImageName}"
+                    echo "Tagging Docker image: ${dockerImageName}"
 
-            // Ensure Docker Slim is installed
-            bat """
-            docker-slim --version
-            """
+                    bat """
+                    docker tag ${dockerImageName} ${nexusRepoUrl}${dockerImageName}
+                    """
 
-            // Minify Docker image
-            bat """
-            docker-slim build ${dockerImageName} --tag ${slimImageName}
-            """
+                    echo "Pushing Docker image: ${dockerImageName} to Nexus"
 
-            echo "Minified Docker image created: ${slimImageName}"
+                    bat """
+                    docker push ${nexusRepoUrl}${dockerImageName}
+                    """
+                    echo "Docker image pushed to Nexus"
+                }
+            }
         }
-    }
-}
+
+        stage('Deploy Container') {
+            steps {
+                script {
+                    def version = env.GIT_COMMIT_ID
+                    def dockerImageName = "my-app:${version}"
+
+                    echo "Deploying Docker container with image: ${dockerImageName}"
+
+                    bat """
+                    docker run -d --name my-app-container ${dockerImageName}
+                    """
+                    echo "Docker container deployed"
+                }
+            }
+        }
 
 
     }
