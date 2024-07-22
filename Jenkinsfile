@@ -132,28 +132,30 @@ pipeline {
             }
         }
 
-        stage('Tag and Push Docker Image to Nexus') {
-            steps {
-                script {
-                    def version = env.GIT_COMMIT_ID
-                    def dockerImageName = "my-app:${version}"
-                    def nexusRepoUrl = "http://localhost:8082/repository/docker-host/"
+       stage('Tag and Push Docker Image to Nexus') {
+    steps {
+        script {
+            def version = env.GIT_COMMIT_ID
+            def dockerImageName = "my-app:${version}"
+            def nexusRepoUrl = "nexus-host/repository/docker-host/"
 
-                    echo "Tagging Docker image: ${dockerImageName}"
+            echo "Tagging Docker image: ${dockerImageName}"
 
-                    bat """
-                    docker tag ${dockerImageName} ${nexusRepoUrl}${dockerImageName}
-                    """
+            // Notez que nous utilisons uniquement le chemin du dépôt, pas l'URL complète
+            bat """
+            docker tag ${dockerImageName} ${nexusRepoUrl}${dockerImageName}
+            """
 
-                    echo "Pushing Docker image: ${dockerImageName} to Nexus"
+            echo "Pushing Docker image: ${dockerImageName} to Nexus"
 
-                    bat """
-                    docker push ${nexusRepoUrl}${dockerImageName}
-                    """
-                    echo "Docker image pushed to Nexus"
-                }
-            }
+            bat """
+            docker push ${nexusRepoUrl}${dockerImageName}
+            """
+            echo "Docker image pushed to Nexus"
         }
+    }
+}
+
 
         stage('Deploy Container') {
             steps {
