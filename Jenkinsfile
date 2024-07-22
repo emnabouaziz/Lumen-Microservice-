@@ -74,22 +74,28 @@ pipeline {
         }
 
         stage('Check Artifact in Nexus') {
-            steps {
-                script {
-                    def versionTag = params.VERSION_TAG
-                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+             steps {
+        script {
+            def version = env.GIT_COMMIT_ID
+            def dockerImageName = "my-app:${version}"
+            def nexusRepoUrl = "http://localhost:8082/repository/docker-hosted/"
 
-                    echo "Checking artifact in Nexus at URL: ${nexusUrl}"
+            echo "Tagging Docker image: ${dockerImageName}"
 
-                    // Execute curl command to get HTTP response code
-                    def response = bat(script: """
-                        curl -o NUL -s -w %%{http_code} "${nexusUrl}"
-                        """, returnStdout: true).trim()
+            // Notez que nous utilisons uniquement le chemin du dépôt, pas l'URL complète
+            bat """
+            docker tag ${dockerImageName} ${nexusRepoUrl}${dockerImageName}
+            """
 
-                    echo "HTTP response code: ${response}"
-                }
-            }
+            echo "Pushing Docker image: ${dockerImageName} to Nexus"
+
+            bat """
+            docker push ${nexusRepoUrl}${dockerImageName}
+            """
+            echo "Docker image pushed to Nexus"
         }
+    }
+}
 
         stage('Download Artifact') {
             steps {
