@@ -134,7 +134,7 @@ stage('Tag and Push Docker Image to Nexus') {
         script {
             def version = env.GIT_COMMIT_ID
             def dockerImageName = "my-app:${version}"
-            def nexusRepoUrl = "nexus-host/repository/docker-host/"
+            def nexusRepoUrl = "http://localhost:8082/repository/docker-host/"
 
             echo "Tagging Docker image: ${dockerImageName}"
 
