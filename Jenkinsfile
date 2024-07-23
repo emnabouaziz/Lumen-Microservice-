@@ -135,7 +135,7 @@ pipeline {
                 script {
                     def version = env.GIT_COMMIT_ID
                     def dockerImageName = "my-app:${version}"
-                    def nexusRepoUrl = "${env.NEXUS_URL}/repository/docker-host"
+                    def nexusRepoUrl = "nexus-host/repository/docker-host"
 
                     echo "Tagging Docker image: ${dockerImageName}"
 
