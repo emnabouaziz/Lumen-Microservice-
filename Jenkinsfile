@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = 'C:\\sonar-scanner-6.1.0.4477-windows-x64\\bin'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'
-        NEXUS_URL = 'http://localhost:8082'
+        NEXUS_URL = 'localhost:8082' // Modifiez ici pour enlever "http://"
         MAVEN_GROUP_ID = 'com.mycompany.project'
         ARTIFACT_ID = 'my-app'
         DOWNLOAD_PATH = "${env.WORKSPACE}\\artifact.zip"
@@ -24,7 +24,7 @@ pipeline {
                         branches: [[name: '*/develop']],
                         userRemoteConfigs: [[url: 'https://gitlab.u-cloudsolutions.xyz/summary-internship/2024/emna-bouaziz/microservice.git']]
                     ]
-                    env.GIT_COMMIT_ID = scmInfo.GIT_COMMIT.take(8) 
+                    env.GIT_COMMIT_ID = scmInfo.GIT_COMMIT.take(8)
                     echo "Checked out commit ID: ${env.GIT_COMMIT_ID}"
                 }
             }
@@ -62,7 +62,7 @@ pipeline {
                     def nexusVersion = "v${shortVersion}" // Format version tag as 'v{shortVersion}'
 
                     withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                        def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${nexusVersion}/${env.ARTIFACT_ID}-${nexusVersion}.zip"
+                        def nexusUrl = "http://${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${nexusVersion}/${env.ARTIFACT_ID}-${nexusVersion}.zip"
 
                         bat """
                         curl -v -u ${NEXUS_USERNAME}:${NEXUS_PASSWORD} --upload-file ${artifactPath} ${nexusUrl}
@@ -73,14 +73,14 @@ pipeline {
             }
         }
 
-       
-     stage('Check Artifact in Nexus') {
+        stage('Check Artifact in Nexus') {
             steps {
                 script {
                     def versionTag = params.VERSION_TAG
-                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+                    def nexusUrl = "http://${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
                     echo "Checking artifact in Nexus at URL: ${nexusUrl}"
-                    // Exécute la commande curl pour obtenir le code HTTP de la réponse
+
+                    // Execute the curl command to get the HTTP response code
                     def response = bat(script: """
                         curl -o NUL -s -w %%{http_code} "${nexusUrl}"
                         """, returnStdout: true).trim()
@@ -93,7 +93,7 @@ pipeline {
             steps {
                 script {
                     def versionTag = params.VERSION_TAG
-                    def nexusUrl = "${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
+                    def nexusUrl = "http://${env.NEXUS_URL}/repository/maven-releases/${env.MAVEN_GROUP_ID.replace('.', '/')}/${env.ARTIFACT_ID}/${versionTag}/${env.ARTIFACT_ID}-${versionTag}.zip"
 
                     bat "curl -o ${DOWNLOAD_PATH} \"${nexusUrl}\""
                     echo "Artifact downloaded to ${DOWNLOAD_PATH}"
@@ -129,31 +129,29 @@ pipeline {
                 }
             }
         }
-stage('Tag and Push Docker Image to Nexus') {
-    steps {
-        script {
-            def version = env.GIT_COMMIT_ID
-            def dockerImageName = "my-app:${version}"
-            def nexusRepoUrl = "http://localhost:8082/repository/docker-host/"
 
-            echo "Tagging Docker image: ${dockerImageName}"
+        stage('Tag and Push Docker Image to Nexus') {
+            steps {
+                script {
+                    def version = env.GIT_COMMIT_ID
+                    def dockerImageName = "my-app:${version}"
+                    def nexusRepoUrl = "${env.NEXUS_URL}/repository/docker-host"
 
-            bat """
-            docker tag ${dockerImageName} ${nexusRepoUrl}${dockerImageName}
-            """
+                    echo "Tagging Docker image: ${dockerImageName}"
 
-            echo "Pushing Docker image: ${dockerImageName} to Nexus"
+                    bat """
+                    docker tag ${dockerImageName} ${nexusRepoUrl}/${dockerImageName}
+                    """
 
-            bat """
-            docker push ${nexusRepoUrl}${dockerImageName}
-            """
-            echo "Docker image pushed to Nexus"
+                    echo "Pushing Docker image: ${dockerImageName} to Nexus"
+
+                    bat """
+                    docker push ${nexusRepoUrl}/${dockerImageName}
+                    """
+                    echo "Docker image pushed to Nexus"
+                }
+            }
         }
-    }
-}
-
-
-
 
         stage('Deploy Container') {
             steps {
