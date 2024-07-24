@@ -1,5 +1,5 @@
 <?php
-
+namespace Tests;
 use Laravel\Lumen\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Facades\Redis;
 
