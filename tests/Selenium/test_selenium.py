@@ -1,18 +1,23 @@
 import time
+import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-# Setup Chrome options
-chrome_options = Options()
-chrome_options.add_argument("--headless")  # Run in headless mode
+@pytest.fixture(scope="module")
+def driver():
+    # Setup Chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run in headless mode
 
-service = Service(executable_path="C:/chromedriver/chromedriver.exe")
+    # Initialize WebDriver
+    service = Service(executable_path="C:/chromedriver/chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    yield driver
+    driver.quit()
 
-# Initialize WebDriver
-driver = webdriver.Chrome(service=service, options=chrome_options)
-try:
+def test_swagger_documentation(driver):
     # Accéder à la documentation API (Swagger)
     driver.get('http://localhost:8000/api/documentation')
 
@@ -44,7 +49,3 @@ try:
 
     # Afficher un message de réussite
     print("Test fonctionnel réussi : la documentation Swagger est accessible et l'interaction de base fonctionne.")
-
-finally:
-    # Fermer le navigateur
-    driver.quit()
