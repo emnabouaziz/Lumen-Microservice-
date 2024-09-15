@@ -18,38 +18,7 @@ class Post extends Model
      * @return array
      */
     protected $fillable = ['title', 'content', 'is_default', 'can_delete'];
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saved(function ($model) {
-            try {
-                $elasticsearchService = App::make(ElasticsearchService::class);
-                \Log::info('Indexing document for post ID: ' . $model->id);
-                $response = $elasticsearchService->indexDocument('posts', $model->id, $model->toArray());
-                \Log::info('Indexing response: ', (array) $response);
-            } catch (\Exception $e) {
-                \Log::error('Error indexing document: ' . $e->getMessage());
-            }
-        });
-        
-        static::deleted(function ($model) {
-            try {
-                $elasticsearchService = App::make(ElasticsearchService::class);
-                \Log::info('Deleting document for post ID: ' . $model->id);
-                $response = $elasticsearchService->deleteDocument('posts', $model->id);
-                \Log::info('Deleting response: ', (array) $response);
-            } catch (\Exception $e) {
-                \Log::error('Error deleting document: ' . $e->getMessage());
-            }
-        });
-    }
-    public function toSearchableArray()
-    {
-       
-
-        return ["title"=> $this->title,];
-    }
+    
     public function tags()
     {
         return $this->belongsToMany(Tag::class);

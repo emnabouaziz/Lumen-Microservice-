@@ -417,41 +417,52 @@
                 "tags": [
                     "Tag"
                 ],
-                "summary": "Create a New Tag",
-                "description": "Create a new Tag",
+                "summary": "Create a New Tag and Associate it with a Post",
+                "description": "Create a new Tag and associate it with a specified Post using its ID",
                 "operationId": "StoreTag",
                 "parameters": [
                     {
-                        "name": "name",
+                        "name": "postId",
                         "in": "query",
-                        "description": "Name of the tag",
+                        "description": "ID of the post to associate the tag with",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "is_default",
-                        "in": "query",
-                        "description": "Is default tag",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    },
-                    {
-                        "name": "can_delete",
-                        "in": "query",
-                        "description": "Can delete tag",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean"
+                            "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "is_default",
+                                    "can_delete"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the tag",
+                                        "type": "string"
+                                    },
+                                    "is_default": {
+                                        "description": "Is default tag",
+                                        "type": "boolean"
+                                    },
+                                    "can_delete": {
+                                        "description": "Can delete tag",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Successful operation"
+                        "description": "Tag created and associated with the post successfully"
                     },
                     "400": {
                         "description": "Bad Request"

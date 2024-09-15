@@ -104,8 +104,8 @@ public function index()
             $data = $validator->errors()->messages();
         } else {
             // Charger les relations 'tags' avec chaque 'Post'
-          /*  $posts = Post::with('tags')->orderBy('id', 'DESC')->paginate($_GET['per_page']);
-            $data['posts'] = $posts;*/
+            $posts = Post::with('tags')->orderBy('id', 'DESC')->paginate($_GET['per_page']);
+            $data['posts'] = $posts;
             $cacheKey = 'posts_' . $params['per_page'];
             $cachedPosts = Redis::get($cacheKey);
             if (!$cachedPosts) {
@@ -159,7 +159,7 @@ public function index()
     public function show($id)
     {
         try {
-            $cacheKey = 'post_' . $id;
+           /* $cacheKey = 'post_' . $id;
             $cachedPost = Redis::get($cacheKey);
 
             if (!$cachedPost) {
@@ -167,8 +167,8 @@ public function index()
                 Redis::set($cacheKey, serialize($post));
             } else {
                 $post = unserialize($cachedPost);
-            }
-            //$post = Post::with('tags')->findOrFail($id);
+            }*/
+            $post = Post::with('tags')->findOrFail($id);
             $code = Response::HTTP_OK;
             $msg = ApiHelpers::API_RESP_MSG_GET_SUCCESS;
             $data = $post;
